@@ -6,7 +6,7 @@
 /*   By: aheinane <aheinane@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/20 16:30:26 by aheinane          #+#    #+#             */
-/*   Updated: 2024/04/26 09:46:55 by aheinane         ###   ########.fr       */
+/*   Updated: 2024/04/26 14:42:47 by aheinane         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,10 +45,16 @@ void	fun_first_child(char **argv, t_pipex *data, int i,int fd[2], char **envp)
 
 	//if (i == 1)
 	//	dup2(data->fd_out, STDOUT_FILENO);
+	//if (i == argc - 4)
+	//{
+	//	//close(fd[1]);
+	//	//fd[1] = data->fd_out;
+	//	dup2(data->fd_out, STDOUT_FILENO);
+	//}
 	dup2(fd[1], STDOUT_FILENO);
 	close(fd[0]);
 	close(fd[1]);
-	dup2(data->fd_in, STDIN_FILENO);
+	//dup2(data->fd_in, STDIN_FILENO);
 	
 	data->com_fir_child = ft_split(argv[i + 2], ' ');
 	//if (open_fd_in(data, argv, argc) == 1)

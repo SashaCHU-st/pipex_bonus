@@ -6,7 +6,7 @@
 /*   By: aheinane <aheinane@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/15 10:28:39 by aheinane          #+#    #+#             */
-/*   Updated: 2024/04/26 09:47:26 by aheinane         ###   ########.fr       */
+/*   Updated: 2024/04/26 14:47:10 by aheinane         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,10 +54,6 @@ int	open_fd_in(t_pipex *data, char **argv, int argc)
 	return (0);
 }
 
-//void	open_fd_out(t_pipex *data, char **argv, int argc)
-//{
-	
-//}
 #include <stdio.h> // to remove
 int	main(int argc, char **argv, char **envp)
 {
@@ -73,7 +69,18 @@ int	main(int argc, char **argv, char **envp)
 	if (open_fd_in(&data, argv, argc) == 1)
 		ft_putstr_fd(": No such file or directory\n", 2);
 	path = mine_path(argv, envp);
-	
+	dup2(data.fd_in, STDIN_FILENO);
+	close(data.fd_in);
+	data.commands_path = ft_split(path, ':');
+	if (data.commands_path == 0)
+	{
+		close(fd[0]);
+		close(fd[1]);
+		free_fun(&data);
+	}
+	pid = malloc(sizeof(int) * (argc - 3));
+	if(!pid)
+		return(0);
 	int i = -1;
 	while (++i < argc - 3)
 	{
@@ -82,21 +89,12 @@ int	main(int argc, char **argv, char **envp)
 			printf("eroor");
 			exit(1);
 		}
-	}
-	data.commands_path = ft_split(path, ':');
-	pid = malloc(sizeof(int) * (argc - 3));
-	if(!pid)
-		return(0);
-	i = -1;
-	while (++i < argc - 3)
-	{
-		pid[i] = fork();
 		if (i == argc - 4)
 		{
-			//close(fd[1]);
-			//fd[1] = data.fd_out;
-			dup2(data.fd_out, STDOUT_FILENO);
+			close(fd[1]);
+			fd[1] = data.fd_out;
 		}
+		pid[i] = fork();
 		if(pid[i] == 0)
 		{
 			fun_first_child(argv, &data,i, fd, envp);
@@ -108,13 +106,7 @@ int	main(int argc, char **argv, char **envp)
 			close(fd[1]);
 		}
 	}
-	if (data.commands_path == 0)
-	{
-		close(fd[0]);
-		close(fd[1]);
-		free_fun(&data);
-	}
-	//open_fd_out(&data, argv, argc);
+	close(STDIN_FILENO);
 	i = -1;
 	while (++i < argc - 3)
 		waitpid(pid[i], NULL, 0);
